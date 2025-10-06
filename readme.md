@@ -1,3 +1,6 @@
+#APK link: 
+https://drive.google.com/file/d/1Zm0X-yP8oDmcPf9aibUZxIxlfe0nlkZf/view?usp=sharing
+
 # 🧠 Real-Time Edge Detection Viewer  
 **Android + OpenCV (C++) + OpenGL ES + TypeScript Web Viewer**  
 
