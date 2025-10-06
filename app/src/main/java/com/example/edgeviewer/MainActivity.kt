@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity() {
 
             if (outputData != null && outputData.isNotEmpty()) {
                 // CRITICAL FIX: After 90° rotation, dimensions are swapped
-                renderer.updateFrame(outputData, height, width)
+                renderer.updateFrame(outputData, width, height)
             }
 
             updateFps()
