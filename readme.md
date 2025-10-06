@@ -149,7 +149,7 @@ TypeScript (for web visualization)│ ├── CMakeLists.txt
 1. **Clone the repository:**  
    ```bash
    git clone https://github.com/RealCifer/edgeviewer.git
-   cd <repo-name>
+   cd edgeviewer
 
 ## 📸 Working Model Screenshots
 
