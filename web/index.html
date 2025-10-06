@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EdgeVision</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            color: #e4e4e7;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #a1a1aa;
+            font-weight: 400;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 30px;
+        }
+
+        .viewer-card {
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .canvas-container {
+            position: relative;
+            background: #18181b;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid rgba(167, 139, 250, 0.2);
+            transition: border-color 0.3s;
+            margin-bottom: 25px;
+        }
+
+        .canvas-container:hover {
+            border-color: rgba(167, 139, 250, 0.5);
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: crosshair;
+        }
+
+        .canvas-overlay {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #10b981;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        button {
+            padding: 14px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        button:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(124, 58, 237, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e4e4e7;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .stats-panel {
+            background: linear-gradient(145deg, rgba(24, 24, 27, 0.95) 0%, rgba(31, 20, 45, 0.95) 100%);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 25px 70px rgba(124, 58, 237, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            height: fit-content;
+        }
+
+        .stats-header {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(168, 85, 247, 0.15) 100%);
+            padding: 20px 25px;
+            margin-bottom: 0;
+            border-bottom: 1px solid rgba(167, 139, 250, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        .stats-header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats-header h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.01em;
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7), 0 0 20px rgba(16, 185, 129, 0.5);
+            animation: pulse-ring 2s infinite;
+            position: relative;
+        }
+
+        .pulse-dot::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(16, 185, 129, 0.4);
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7), 0 0 20px rgba(16, 185, 129, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0), 0 0 25px rgba(16, 185, 129, 0.3);
+            }
+        }
+
+        .stats-content {
+            padding: 20px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(168, 85, 247, 0.06) 100%);
+            padding: 20px 24px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #7c3aed 0%, #ec4899 100%);
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.8);
+            transition: width 0.3s;
+        }
+
+        .stat-item::after {
+            content: '';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .stat-item:hover {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.18) 0%, rgba(168, 85, 247, 0.1) 100%);
+            border-color: rgba(167, 139, 250, 0.4);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 35px rgba(124, 58, 237, 0.3);
+        }
+
+        .stat-item:hover::before {
+            width: 100%;
+            opacity: 0.04;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #a1a1aa;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-label::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+            box-shadow: 0 0 8px rgba(124, 58, 237, 0.6);
+        }
+
+        .stat-value {
+            font-size: 2.8rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e4e4e7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .info-card {
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            color: #71717a;
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: #a855f7;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: #c4b5fd;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">◈</div>
+            </div>
+            <h1>EdgeVision</h1>
+            <p>Real Time Edge Detection Processor</p>
+        </div>
+
+        <div class="main-grid">
+            <div class="viewer-card">
+                <div class="canvas-container">
+                    <canvas id="frameCanvas" width="640" height="480"></canvas>
+                    <div class="canvas-overlay">● LIVE PROCESSING</div>
+                </div>
+
+                <div class="controls">
+                    <button id="uploadBtn" class="btn-primary">
+                        Upload Sample Photo
+                    </button>
+                    <button id="loadSampleBtn" class="btn-secondary">
+                        Refresh
+                    </button>
+                    <input type="file" id="fileInput" accept="image/*">
+                </div>
+            </div>
+
+            <div class="stats-panel">
+                <div class="stats-header">
+                    <div class="stats-header-content">
+                        <div class="pulse-dot"></div>
+                        <h2>Required Metrics</h2>
+                    </div>
+                </div>
+
+                <div class="stats-content">
+                    <div class="stat-item">
+                        <div class="stat-label">Frame Rate</div>
+                        <div class="stat-value"><span id="fpsValue">0.0</span> fps</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Resolution</div>
+                        <div class="stat-value" id="resolutionValue">0 × 0</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Processing Mode</div>
+                        <div class="stat-value" id="modeValue" style="font-size: 1.3rem;">—</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Last Visited</div>
+                        <div class="stat-value" id="timestampValue" style="font-size: 1.2rem;">--:--:--</div>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>Quick Guide</h3>
+                        <ul>
+                            <li>Upload processed frames from Android app</li>
+                            <li>Drag and drop images onto canvas</li>
+                            <li>Monitor real-time frame statistics</li>
+                            <li>Compatible with RGBA/edge-detected output</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Assignment by FLAM.AI
+        </div>
+    </div>
+
+    <script src="dist/index.js"></script>
+</body>
+</html>
