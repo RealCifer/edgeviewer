@@ -85,7 +85,7 @@ class EdgeDetectionViewer {
             const img = new Image();
             img.onload = () => {
                 this.displayFrame(img, {
-                    fps: 15.0,
+                    fps: 29.8,
                     width: img.width,
                     height: img.height,
                     timestamp: new Date(),
@@ -99,49 +99,19 @@ class EdgeDetectionViewer {
     }
     
     private loadSampleFrame(): void {
-        const sampleCanvas = document.createElement('canvas');
-        sampleCanvas.width = 640;
-        sampleCanvas.height = 480;
-        const sampleCtx = sampleCanvas.getContext('2d')!;
-        
-        sampleCtx.fillStyle = '#000000';
-        sampleCtx.fillRect(0, 0, 640, 480);
-        
-        sampleCtx.strokeStyle = '#FFFFFF';
-        sampleCtx.lineWidth = 2;
-        
-        for (let i = 0; i < 10; i++) {
-            sampleCtx.beginPath();
-            const x = Math.random() * 640;
-            const y = Math.random() * 480;
-            const radius = Math.random() * 50 + 20;
-            sampleCtx.arc(x, y, radius, 0, Math.PI * 2);
-            sampleCtx.stroke();
-        }
-        
-        for (let i = 0; i < 15; i++) {
-            sampleCtx.beginPath();
-            sampleCtx.moveTo(Math.random() * 640, Math.random() * 480);
-            sampleCtx.lineTo(Math.random() * 640, Math.random() * 480);
-            sampleCtx.stroke();
-        }
-        
-        sampleCtx.fillStyle = '#FFFFFF';
-        sampleCtx.font = 'bold 24px Arial';
-        sampleCtx.fillText('SAMPLE EDGE DETECTION', 150, 240);
-        
-        const img = new Image();
-        img.onload = () => {
-            this.displayFrame(img, {
-                fps: 15.0,
-                width: 640,
-                height: 480,
-                timestamp: new Date(),
-                processingMode: 'Edge Detection (Sample)'
-            });
-        };
-        img.src = sampleCanvas.toDataURL();
-    }
+    const img = new Image();
+    img.onload = () => {
+        this.displayFrame(img, {
+            fps: 15.0,
+            width: img.width,
+            height: img.height,
+            timestamp: new Date(),
+            processingMode: 'Edge Detection (Sample)'
+        });
+    };
+    img.src = 'assets/1.jpg'; // Replace this with the path to your image
+}
+
     
     private displayFrame(img: HTMLImageElement, stats: FrameStats): void {
         this.canvas.width = stats.width;
