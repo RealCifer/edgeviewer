@@ -65,11 +65,12 @@ Extract it anywhere (for example: C:/OpenCV-android-sdk/).
 In Android Studio, update your CMakeLists.txt to include OpenCV paths:
 
 # Add OpenCV include directories
-set(OpenCV_DIR "C:/OpenCV-android-sdk/sdk/native/jni")
-find_package(OpenCV REQUIRED)
-include_directories(${OpenCV_INCLUDE_DIRS})
-target_link_libraries(native-lib ${OpenCV_LIBS} log)
-
+```bash
+    set(OpenCV_DIR "C:/OpenCV-android-sdk/sdk/native/jni")
+    find_package(OpenCV REQUIRED)
+    include_directories(${OpenCV_INCLUDE_DIRS})
+    target_link_libraries(native-lib ${OpenCV_LIBS} log)
+```
 
 Also make sure build.gradle includes:
 
@@ -91,10 +92,11 @@ You should see a real-time camera feed with edges highlighted.
 💻 Web Viewer Setup
 
 Navigate to the web folder:
-
-cd web
-npm install typescript
-tsc
+```bash
+    cd web
+    npm install typescript
+    tsc
+```
 
 
 Open index.html in your browser to view the sample processed frame.
